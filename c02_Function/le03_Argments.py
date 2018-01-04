@@ -113,3 +113,33 @@ person2('Jack', 24, city='Beijing', job='Engineer')
 # 如果函数定义中已经有了可变参数，后面跟着的命名关键字参数就不再需要一个特殊分隔符*号了
 def person3(name, age, *args, city, job):
     print(name, age, args, city, job)
+
+
+# 命名关键字参数必须传入参数名，这和位置参数不同。如果没有传入参数名，调用将会报错
+# person3('Jack', '24', 'Beijing', 'Engineer')
+
+# 命名关键字参数可以有缺省值，从而简化调用
+def person4(name, age, *, city='Beijing', job):
+    print(name, age, city, job)
+
+
+# 由于命名关键字参数city具有默认值，调用时，可以不传入city参数：
+person4('Jack', 24, job='Engineer')
+
+
+# 参数组合
+# 在Python中定义函数，可以用必选参数、默认参数、可变参数、关键字参数和命名关键字参数，这5种参数都可以组合使用。
+# 但是请注意，参数定义的顺序必须是：必选参数、默认参数、可变参数、命名关键字参数和关键字参数。
+
+# 对于任意函数，都可以通过类似func(*args, **kw)的形式调用他，无论他的参数试是怎么定义的
+
+
+# homework
+def product(*nums):
+    result = 1
+    for n in nums:
+        result *= n
+    return result
+
+
+print(product(4, 5, 6))

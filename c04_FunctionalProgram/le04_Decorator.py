@@ -85,10 +85,74 @@ def log(text):
 # decorator 可以增强函数的功能，定义起来虽然有点复杂，但是用起来非常灵活方便。
 
 # 请编写一个decorator，能在函数调用前后打印出'begin call'和'end call'的日志。
+def log2(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kw):
+        print('begin call %s()' % func.__name__)
+        result = func()
+        print('end call %s()' % func.__name__)
+        return result
+    return wrapper
 
-# 再思考一下能否写出一个@log的decorator，它既支持带参数，又支持不带参数。
+@log2
+def now():
+    print('2015-3-25')
 
+now()
+
+# 再思考一下能否写出一个@log的decorator，它既支持
+# @log
+# def f():
+#     pass
+# 又支持：
+# @log('execute')
+# def f():
+#     pass
+def log3(textOrfunc):
+    if isinstance(textOrfunc, str):
+        def decorator(func):
+            @functools.wraps(func)
+            def wrapper(*args, **kw):
+                print('%s %s()' % (textOrfunc, func.__name__))
+                return func(*args, **kw)
+            return wrapper
+        return decorator
+    else:
+        @functools.wraps(textOrfunc)
+        def wrapper(*args, **kw):
+            print('call %s()' % textOrfunc.__name__)
+            return textOrfunc(*args, **kw)
+        return wrapper
+
+# @log3('execute')
+@log3
+def now():
+    print('2015-3-25')
+
+now()
 
 # 练习
 # 请设计一个decorator，它可以作用于任何函数上，并打印该函数的执行时间：
+import time
+def metric(func):
+    @functools.wraps(func)
+    def wapper(*args, **kw):
+        t1 = time.time() * 1000
+        result = func(*args, **kw)
+        t2 = time.time() * 1000
+        print('函数%s()执行用时：%dms' % (func.__name__, t2-t1))
+        return result
+    return wapper
 
+@metric
+def fast(x, y):
+    time.sleep(0.0012)
+    return x + y
+
+@metric
+def slow(x, y, z):
+    time.sleep(0.1234)
+    return x * y * z
+
+fast(1, 2)
+slow(1, 2, 3)

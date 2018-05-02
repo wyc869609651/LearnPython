@@ -40,15 +40,15 @@ import sqlite3
 # conn.close()
 
 # 我们再试试查询记录：
-conn = sqlite3.connect('test.db')
-cursor = conn.cursor()
-# 执行查询语句：
-cursor.execute('SELECT * from user where id=?', ('1',))
-# 获得查询结果集：
-values = cursor.fetchall()
-print(values)
-cursor.close()
-conn.close()
+# conn = sqlite3.connect('test.db')
+# cursor = conn.cursor()
+# # 执行查询语句：
+# cursor.execute('SELECT * from user where id=?', ('1',))
+# # 获得查询结果集：
+# values = cursor.fetchall()
+# print(values)
+# cursor.close()
+# conn.close()
 # 使用Python的DB-API时，只要搞清楚Connection和Cursor对象，打开后一定记得关闭，就可以放心地使用。
 #
 # 使用Cursor对象执行insert，update，delete语句时，执行结果由rowcount返回影响的行数，
@@ -71,3 +71,42 @@ conn.close()
 #
 # 如何才能确保出错的情况下也关闭掉Connection对象和Cursor对象呢？请回忆try:...except:...finally:...
 # 的用法。
+
+
+# 练习
+# 请编写函数，在Sqlite中根据分数段查找指定的名字：
+
+import os, sqlite3
+
+db_file = os.path.join(os.path.dirname(__file__), 'test.db')
+if os.path.isfile(db_file):
+    os.remove(db_file)
+
+# 初始数据:
+conn = sqlite3.connect(db_file)
+cursor = conn.cursor()
+cursor.execute('create table student(id varchar(20) primary key, name varchar(20), score int)')
+cursor.execute(r"insert into student values ('A-001', 'Adam', 95)")
+cursor.execute(r"insert into student values ('A-002', 'Bart', 62)")
+cursor.execute(r"insert into student values ('A-003', 'Lisa', 78)")
+cursor.close()
+conn.commit()
+conn.close()
+
+def get_score_in(low, high):
+   conn = sqlite3.connect(db_file)
+   cursor = conn.cursor()
+   cursor.execute('select `name` from student where score >= ? and score<= ? order by score', (low, high))
+   values = cursor.fetchall()
+   cursor.close()
+   conn.close()
+   names = []
+   for v in values:
+       names.append(v[0])
+   return names
+# 测试:
+assert get_score_in(80, 95) == ['Adam'], get_score_in(80, 95)
+assert get_score_in(60, 80) == ['Bart', 'Lisa'], get_score_in(60, 80)
+assert get_score_in(60, 100) == ['Bart', 'Lisa', 'Adam'], get_score_in(60, 100)
+
+print('Pass')
